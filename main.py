@@ -2,7 +2,7 @@ import telebot
 from telebot import types
 
 
-API_KEY = '5917351839:AAFvxW_Y5zK5W5L_FaEb51EryG6Y9pxt394'
+API_KEY = '5924672396:AAEsfX7vyFgA3uy7GrugRR5w8_rXfhW54U8'
 
 USER_ID = -1001818313548
 
