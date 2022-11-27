@@ -53,4 +53,5 @@ def riview_3(message):
     message_to_save = f'{user.name} \n {user.birthday} \n {user.tel}'
     bot.send_message(USER_ID, message_to_save)
 
+bot.polling(non_stop=True)
 bot.infinity_polling()
