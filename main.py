@@ -1,5 +1,6 @@
 import telebot
 from telebot import types
+import time
 
 
 API_KEY = '5924672396:AAEsfX7vyFgA3uy7GrugRR5w8_rXfhW54U8'
@@ -57,70 +58,58 @@ def edit_3(message):
 
 @bot.message_handler(commands=['start'])
 def start_1(message):
-    try:
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
-        credit = types.KeyboardButton('Сформировать онлайн заявку')
-        markup.add(credit)
-        bot.send_message(message.chat.id, 'Для того, чтобы оформить рассрочку нажмите на кнопку "Сформировать онлайн заявку"', reply_markup=markup)
-        bot.register_next_step_handler(message, start_2)
-    except:
-        bot.send_message(message.chat.id, 'Сервер временно недоступен, пожалуйста, повторите попытку позже!')
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
+    credit = types.KeyboardButton('Сформировать онлайн заявку')
+    markup.add(credit)
+    bot.send_message(message.chat.id, 'Для того, чтобы оформить рассрочку нажмите на кнопку "Сформировать онлайн заявку"', reply_markup=markup)
+    bot.register_next_step_handler(message, start_2)
 
 def start_2(message):
-    try:
-        sent = bot.reply_to(message, 'Внесите ваше ФИО:')
+    if message.text != 'Сформировать онлайн заявку':
+        start_1(message=bot.reply_to(message, 'Пожалуйста, нажмите на кнопку для получения рассрочки'))
+    else:
+        sent = bot.reply_to(message, 'Внесите ваши Фамилию Имя Отчество полностью, например\n Иванов Иван Иванович')
         bot.register_next_step_handler(sent, review_1)
-    except:
-        bot.send_message(message.chat.id, 'Сервер временно недоступен, пожалуйста, повторите попытку позже')
-
+    
 def review_1(message):
-    try:
+    if any(map(str.isdigit, message.text)):
+        sent = bot.reply_to(message, 'Без цифр')
+        bot.register_next_step_handler(sent, review_1)
+    else:
         chat_id = message.chat.id
         name = message.text
         user = User(name)
         user_dict[chat_id] = user
         sent = bot.reply_to(message, 'Укажите дату рождения в формате 01.01.2000:')
         bot.register_next_step_handler(sent, review_2)
-    except:
-        bot.send_message(message.chat.id, 'Сервер временно недоступен, пожалуйста, повторите попытку позже')
 
 def review_2(message):
-    try:
-        chat_id = message.chat.id
-        birthday = message.text
-        user = user_dict[chat_id]
-        user.birthday = birthday
-        sent = bot.reply_to(message, 'Укажите телефон:')
-        bot.register_next_step_handler(sent, review_3)
-    except:
-        bot.send_message(message.chat.id, 'Сервер временно недоступен, пожалуйста, повторите попытку позже')
+    chat_id = message.chat.id
+    birthday = message.text
+    user = user_dict[chat_id]
+    user.birthday = birthday
+    sent = bot.reply_to(message, 'Укажите телефон:')
+    bot.register_next_step_handler(sent, review_3)
 
 def review_3(message):
+    chat_id = message.chat.id
+    tel = message.text
+    user = user_dict[chat_id]
+    user.tel = tel
+    bot.send_message(message.chat.id, 'Ваша заявка принята, в ближайшее время наш менеджер свяжется с вами.')
+    message_to_save = f'{user.name} \n {user.birthday} \n {user.tel}'
     try:
-        chat_id = message.chat.id
-        tel = message.text
-        user = user_dict[chat_id]
-        user.tel = tel
-        bot.send_message(message.chat.id, 'Ваша заявка принята, в ближайшее время наш менеджер свяжется с вами.')
-        message_to_save = f'{user.name} \n {user.birthday} \n {user.tel}'
-        try:
-            bot.send_message(CHAT_ID, message_to_save)
-        except:
-            print('ID не найден. Измените его через Телеграм Бота')
+        bot.send_message(CHAT_ID, message_to_save)
     except:
-        bot.send_message(message.chat.id, 'Сервер временно недоступен, пожалуйста, повторите попытку позже')
+        bot.send_message(USER_ID, 'Сервер перезагрузился, пожалуйста, укажите ID чата через /edit')
+    time.sleep(3)
+    bot.send_message(message.chat.id, 'Если вы хотите оставить еще одну заявку запустите бота снова /start')
 
 
 @bot.message_handler(content_types=['text'])
 def not_found(message):
-    try:
-        if message.text != '/edit' and message.text != '/start' and message.text != 'Сформировать онлайн заявку':
-            bot.send_message(message.chat.id, 'Нет такой команды. Введите /start')
-        else:
-            print(123)
-    except:
-        bot.send_message(message.chat.id, 'Сервер временно недоступен, пожалуйста, повторите попытку позже')
-
+    if message.text != '/edit' and message.text != '/start' and message.text != 'Сформировать онлайн заявку':
+        bot.send_message(message.chat.id, 'Нет такой команды. Введите /start')
 
 bot.polling(non_stop=True)
 bot.infinity_polling()
