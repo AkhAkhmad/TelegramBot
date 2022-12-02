@@ -29,13 +29,6 @@ USER_DICT = {}
 RAS_DICT = {}
 
 
-class User:
-    def __init__(self, name):
-        self.name = name
-        self.birthday = None
-        self.tel = None
-
-
 @bot.message_handler(commands=['editid'])
 def edit(message):
     if message.from_user.id == USER_ID:
@@ -273,10 +266,7 @@ def review_6(message):
         send = bot.reply_to(message, 'Без цифр')
         bot.register_next_step_handler(send, review_6)
     else:
-        chat_id = message.chat.id
-        name = message.text
-        user = User(name)
-        USER_DICT[chat_id] = user
+        USER_DICT['name'] = message.text
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
         credit = types.KeyboardButton('Заполнить анкету заново')
         markup.add(credit)
@@ -288,10 +278,7 @@ def review_7(message):
     if message.text == 'Заполнить анкету заново':
         review_5(message=message)
     else:
-        chat_id = message.chat.id
-        birthday = message.text
-        user = USER_DICT[chat_id]
-        user.birthday = birthday
+        USER_DICT['data'] = message.text
         send = bot.send_message(message.chat.id, 'Укажите телефон:')
         bot.register_next_step_handler(send, review_8)
 
@@ -300,18 +287,17 @@ def review_8(message):
     if message.text == 'Заполнить анкету заново':
         review_5(message=message)
     else:
-        chat_id = message.chat.id
-        tel = message.text
-        user = USER_DICT[chat_id]
-        user.tel = tel
+        USER_DICT['tel'] = message.text
+        name = USER_DICT['name']
+        data = USER_DICT['data']
+        tel = USER_DICT['tel']
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
         credit = types.KeyboardButton('Заполнить анкету заново')
         raschet = types.KeyboardButton('Пересчитать сумму')
         markup.add(credit, raschet)
         send = bot.send_message(message.chat.id, 'Ваша заявка принята, в ближайшее время наш менеджер свяжется с вами.', reply_markup=markup)
         bot.register_next_step_handler(send, func)
-        message_to_save = f'{user.name} \n {user.birthday} \n {user.tel}'
-
+        message_to_save = f'{name} \n {data} \n {tel}'
         try:
             bot.send_message(CHAT_ID, message_to_save)
         except:
