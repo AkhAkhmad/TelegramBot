@@ -29,6 +29,7 @@ USER_DICT = {}
 
 RAS_DICT = {}
 
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -36,11 +37,10 @@ class User:
         self.tel = None
 
 
-
 @bot.message_handler(commands=['editid'])
 def edit(message):
     if message.from_user.id == USER_ID:
-        send = bot.reply_to(message, 'Пароль:')
+        send = bot.send_message(message.chat.id, 'Пароль')
         bot.register_next_step_handler(send, edit_2)
     else:
         bot.send_message(message.chat.id, 'Нет такой команды. Введите /start')
@@ -48,7 +48,7 @@ def edit(message):
 
 def edit_2(message):
     if message.text == PASSWORD:
-        send = bot.reply_to(message, 'Введите новый ID:')
+        send = bot.send_message(message.chat.id, 'Введите новый ID:')
         bot.register_next_step_handler(send, edit_3)
     else:
         bot.send_message(message.chat.id, 'Ошибка!')
@@ -66,7 +66,7 @@ def edit_3(message):
 def edit_id(message):
     try:
         if message.from_user.id == USER_ID:
-            send = bot.reply_to(message, 'Пароль:')
+            send = bot.send_message(message.chat.id, 'Пароль')
             bot.register_next_step_handler(send, edit_id_2)
         else:
             bot.send_message(message.chat.id, 'Нет такой команды. Введите /start')
@@ -76,7 +76,7 @@ def edit_id(message):
 
 def edit_id_2(message):
     if message.text == PASSWORD:
-        send = bot.reply_to(message, 'Введите 1-й параметр:')
+        send = bot.send_message(message.chat.id, 'Введите 1-й параметр:')
         bot.register_next_step_handler(send, edit_id_3)
     else:
         bot.send_message(message.chat.id, 'Ошибка!')
@@ -85,7 +85,7 @@ def edit_id_2(message):
 
 def edit_id_3(message):
     PAR_DICT['1par'] = message.text
-    send = bot.reply_to(message, 'Введите 2-й параметр:')
+    send = bot.send_message(message.chat.id, 'Введите 2-й параметр:')
     bot.register_next_step_handler(send, edit_id_4)
 
 
@@ -112,23 +112,30 @@ def start_2(message):
     if message.text != 'Расчитать сумму' and message.text != 'Пересчитать сумму' and message.text != 'Начать расчет заново':
         start_1(message=bot.reply_to(message, 'Пожалуйста, нажмите на кнопку для расчета'))
     else:
-        send = bot.send_message(message.chat.id, 'Укажите цену товара')
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
+        credit = types.KeyboardButton('Назад')
+        markup.add(credit)
+        send = bot.send_message(message.chat.id, 'Укажите цену товара', reply_markup=markup)
         bot.register_next_step_handler(send, review_1)
     
 
 def review_1(message):
-        try:
-            int(message.text) // int(message.text) == 1
-            sum = message.text
-            RAS_DICT['sum'] = int(sum)
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
-            credit = types.KeyboardButton('Начать расчет заново')
-            markup.add(credit)
-            send = bot.send_message(message.chat.id, 'Укажите первоначальный взнос:', reply_markup=markup)
-            bot.register_next_step_handler(send, review_2)
-        except:
-            send = bot.reply_to(message, 'Укажите цифрами')
-            bot.register_next_step_handler(send, review_1)
+        if message.text == 'Назад':
+            start_1(message=message)
+        else:
+            try:
+                int(message.text) // int(message.text) == 1
+            except:
+                send = bot.reply_to(message, 'Укажите цифрами')
+                bot.register_next_step_handler(send, review_1)
+            else:
+                sum = message.text
+                RAS_DICT['sum'] = int(sum)
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
+                credit = types.KeyboardButton('Начать расчет заново')
+                markup.add(credit)
+                send = bot.send_message(message.chat.id, 'Укажите первоначальный взнос:', reply_markup=markup)
+                bot.register_next_step_handler(send, review_2)
 
 
 def review_2(message):
@@ -196,7 +203,7 @@ def review_3(message):
                         res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
                         bot.send_message(
                         message.chat.id,
-                        f'Сумма товара: {A} \n Срок договора: {C} \n Первоначальный взнос: {B} \n Ежемесячный платеж: {round(res_1)} \n Сумма задолженности: {round(res_1) * (C-1) - B}'
+                        f'Сумма товара: {A} руб. \n Срок договора: {C} мес. \n Первоначальный взнос: {B} руб. \n Ежемесячный платеж: {round(res_1)} руб. \n Сумма задолженности: {round(res_1) * (C-1) - B} руб. '
                         )
                 else:
                     K1 = 0.04
@@ -222,7 +229,7 @@ def review_3(message):
 
 
 def func(message):
-    if message.text == 'Сформировать онлайн заявку':
+    if message.text == 'Сформировать онлайн заявку' or message.text == 'Заполнить анкету заново':
         review_5(message=message)
     elif message.text == 'Пересчитать сумму':
         start_2(message=message)
@@ -280,14 +287,20 @@ def review_8(message):
         tel = message.text
         user = USER_DICT[chat_id]
         user.tel = tel
-        bot.send_message(message.chat.id, 'Ваша заявка принята, в ближайшее время наш менеджер свяжется с вами.')
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
+        credit = types.KeyboardButton('Заполнить анкету заново')
+        raschet = types.KeyboardButton('Пересчитать сумму')
+        markup.add(credit, raschet)
+        send = bot.send_message(message.chat.id, 'Ваша заявка принята, в ближайшее время наш менеджер свяжется с вами.', reply_markup=markup)
+        bot.register_next_step_handler(send, func)
         message_to_save = f'{user.name} \n {user.birthday} \n {user.tel}'
+
         try:
             bot.send_message(CHAT_ID, message_to_save)
         except:
             bot.send_message(message.chat.id, 'Сервер перезагрузился, пожалуйста, укажите ID чата через /editid')
-        time.sleep(3)
-        bot.send_message(message.chat.id, 'Если вы хотите оставить еще одну заявку запустите бота снова /start')
+        # time.sleep(3)
+        # bot.send_message(message.chat.id, 'Если вы хотите оставить еще одну заявку запустите бота снова /start')
 
 
 @bot.message_handler(content_types=['text'])
