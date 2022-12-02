@@ -1,6 +1,5 @@
 import telebot
 from telebot import types
-import time
 
 
 # API_KEY = '5924672396:AAEsfX7vyFgA3uy7GrugRR5w8_rXfhW54U8'
@@ -154,6 +153,7 @@ def review_2(message):
 
 
 def review_3(message):
+    err = 0
     if message.text == 'Начать расчет заново':
         start_2(message=message)
     else:
@@ -196,9 +196,14 @@ def review_3(message):
                         K2 = 0.105
                     try:
                         (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
-                    except ZeroDivisionError:
-                        send = bot.reply_to(message, 'Вы ввели так, что поделилось на 0')
-                        bot.register_next_step_handler(send, review_3)
+                        round((A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)) * (C-1) - B
+                    except:
+                        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
+                        raschet = types.KeyboardButton('Пересчитать сумму')
+                        markup.add(raschet)
+                        send = bot.send_message(message.chat.id, 'Вы неверно ввели данные, пожалуйста, нажмите на кнопку "Пересчитать сумму"', reply_markup=markup)
+                        bot.register_next_step_handler(send, func)
+                        err = 500
                     else:
                         res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
                         bot.send_message(
@@ -209,23 +214,32 @@ def review_3(message):
                     K1 = 0.04
                     K2 = 0.105
                     try:
-                        (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1
-                    except ZeroDivisionError:
-                        send = bot.reply_to(message, 'Вы ввели так, что поделилось на 0')
-                        bot.register_next_step_handler(send, review_3)
+                        (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
+                        round((A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)) * (C-1) - B
+                    except:
+                        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
+                        raschet = types.KeyboardButton('Пересчитать сумму')
+                        markup.add(raschet)
+                        send = bot.send_message(message.chat.id, 'Вы неверно ввели данные, пожалуйста, нажмите на кнопку "Пересчитать сумму"', reply_markup=markup)
+                        bot.register_next_step_handler(send, func)
+                        err = 500
                     else:
-                        res_2 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1
-                        bot.send_message(message.chat.id, round(res_2))
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
-                credit = types.KeyboardButton('Сформировать онлайн заявку')
-                raschet = types.KeyboardButton('Пересчитать сумму')
-                markup.add(credit, raschet)
-                send = bot.send_message(
-                message.chat.id,
-                'Если вас устраивает цена нажмите на "Сформировать онлайн заявку", если нет на "Пересчитать сумму"',
-                reply_markup=markup
-                )
-                bot.register_next_step_handler(send, func)
+                        res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
+                        bot.send_message(
+                        message.chat.id,
+                        f'Сумма товара: {A} руб. \n Срок договора: {C} мес. \n Первоначальный взнос: {B} руб. \n Ежемесячный платеж: {round(res_1)} руб. \n Сумма задолженности: {round(res_1) * (C-1) - B} руб. '
+                        )
+                if err != 500:
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
+                    credit = types.KeyboardButton('Сформировать онлайн заявку')
+                    raschet = types.KeyboardButton('Пересчитать сумму')
+                    markup.add(credit, raschet)
+                    send = bot.send_message(
+                    message.chat.id,
+                    'Если вас устраивает цена нажмите на "Сформировать онлайн заявку", если нет на "Пересчитать сумму"',
+                    reply_markup=markup
+                    )
+                    bot.register_next_step_handler(send, func)
 
 
 def func(message):
@@ -233,7 +247,10 @@ def func(message):
         review_5(message=message)
     elif message.text == 'Пересчитать сумму':
         start_2(message=message)
-
+    else:
+        send = bot.send_message(message.chat.id, 'Пожалуйста нажмите на кнопку')
+        bot.register_next_step_handler(send, func)
+    
 
 def review_4(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
@@ -299,8 +316,6 @@ def review_8(message):
             bot.send_message(CHAT_ID, message_to_save)
         except:
             bot.send_message(message.chat.id, 'Сервер перезагрузился, пожалуйста, укажите ID чата через /editid')
-        # time.sleep(3)
-        # bot.send_message(message.chat.id, 'Если вы хотите оставить еще одну заявку запустите бота снова /start')
 
 
 @bot.message_handler(content_types=['text'])
