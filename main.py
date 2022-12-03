@@ -304,9 +304,8 @@ def review_3(message):
                         else:
                             res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
                             KAL = 1
-                            bot.send_message(
-                            message.chat.id,
-                            f'Сумма товара: {A} руб. \n Срок договора: {C} мес. \n Первоначальный взнос: {B} руб. \n Ежемесячный платеж: {round(res_1)} руб. \n Сумма задолженности: {round(res_1) * (C-1)} руб.'
+                            bot.send_message(message.chat.id,
+                            f'Сумма товара: {RAS_DICT["sum"]} руб. \n Срок договора: {RAS_DICT["srok"]} мес. \n Первоначальный взнос: {RAS_DICT["per_vznos"]} руб. \n Ежемесячный платеж: {(RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]} руб. \n Сумма задолженности: {RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]} руб.'
                             )
                     else:
                         K1 = 0.04
@@ -324,9 +323,8 @@ def review_3(message):
                         else:
                             res_2 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1
                             KAL = 2
-                            bot.send_message(
-                            message.chat.id,
-                            f'Сумма товара: {A} руб. \n Срок договора: {C} мес. \n Первоначальный взнос: {B} руб. \n Ежемесячный платеж: {round(res_2)} руб. \n Сумма задолженности: {round(res_2) * (C-1)} руб.'
+                            bot.send_message(message.chat.id,
+                            f'Сумма товара: {RAS_DICT["sum"]} руб. \n Срок договора: {RAS_DICT["srok"]} мес. \n Первоначальный взнос: {RAS_DICT["per_vznos"]} руб. \n Ежемесячный платеж: {(RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]} руб. \n Сумма задолженности: {RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]} руб.'
                             )
                     if err != 500:
                         if message.from_user.id != USER_ID:
@@ -457,12 +455,12 @@ def review_8(message):
                 if KAL == 1:
                     res_1 = (RAS_DICT['sum'] - RAS_DICT['per_vznos']) *  RAS_DICT['srok'] * 18 / (RAS_DICT['srok'] * 0.01) ** 0.5 / (RAS_DICT['sum'] - RAS_DICT['per_vznos'])**K1 * K2 / П1 / (12 / RAS_DICT['srok']) ** (П2 / 100)
                     bot.send_message(CHAT_ID,
-                    f'Сумма товара: {RAS_DICT["sum"]} руб. \n Срок договора: {RAS_DICT["srok"]} мес. \n Первоначальный взнос: {RAS_DICT["per_vznos"]} руб. \n Ежемесячный платеж: {round(res_1)} руб. \n Сумма задолженности: {round(res_1) * (RAS_DICT["srok"] - 1)} руб.'
+                    f'Сумма товара: {RAS_DICT["sum"]} руб. \n Срок договора: {RAS_DICT["srok"]} мес. \n Первоначальный взнос: {RAS_DICT["per_vznos"]} руб. \n Ежемесячный платеж: {(RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]} руб. \n Сумма задолженности: {RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]} руб.'
                     )
                 elif KAL == 2:
                     res_2 = (RAS_DICT['sum'] - RAS_DICT['per_vznos']) *  RAS_DICT['srok'] * 18 / (RAS_DICT['srok'] * 0.01) ** 0.5 / (RAS_DICT['sum'] - RAS_DICT['per_vznos'])**K1 * K2 / П1
                     bot.send_message(CHAT_ID,
-                    f'Сумма товара: {RAS_DICT["sum"]} руб. \n Срок договора: {RAS_DICT["srok"]} мес. \n Первоначальный взнос: {RAS_DICT["per_vznos"]} руб. \n Ежемесячный платеж: {round(res_2)} руб. \n Сумма задолженности: {round(res_2) * (RAS_DICT["srok"] - 1)} руб.'
+                    f'Сумма товара: {RAS_DICT["sum"]} руб. \n Срок договора: {RAS_DICT["srok"]} мес. \n Первоначальный взнос: {RAS_DICT["per_vznos"]} руб. \n Ежемесячный платеж: {(RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]} руб. \n Сумма задолженности: {RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]} руб.'
                     )
                 bot.send_message(CHAT_ID, message_to_save)
 
