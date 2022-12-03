@@ -24,6 +24,16 @@ USER_DICT = {}
 
 RAS_DICT = {}
 
+def admin(par):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
+    raschet = types.KeyboardButton('Расчитать сумму')
+    edit_id = types.KeyboardButton('Изменить ID чата')
+    edit_par = types.KeyboardButton('Изменить параметры')
+    markup.add(raschet, edit_id, edit_par)
+    bot.send_message(par, 'Для того, чтобы расчитать сумму нажмите на кнопку "Расчитать сумму"', reply_markup=markup)
+    bot.send_message(par, 'Для того, чтобы изменить ID нажмите на кнопку "Изменить ID чата"')
+    bot.send_message(par, 'Для того, чтобы изменить параметры нажмите на кнопку "Изменить параметры"')
+
 
 @bot.message_handler(commands=['editid'])
 def edit_id(message):
@@ -46,15 +56,8 @@ def edit_id_2(message):
 def edit_id_3(message):
     global CHAT_ID
     CHAT_ID = message.text
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
-    credit = types.KeyboardButton('Расчитать сумму')
-    edit_id = types.KeyboardButton('Изменить ID чата')
-    edit_par = types.KeyboardButton('Изменить параметры')
-    markup.add(credit, edit_id, edit_par)
     bot.send_message(message.chat.id, 'ID сменен успешно!')
-    bot.send_message(message.chat.id, 'Для того, чтобы расчитать сумму нажмите на кнопку "Расчитать сумму"', reply_markup=markup)
-    bot.send_message(message.chat.id, 'Для того, чтобы изменить ID нажмите на кнопку "Изменить ID чата"', reply_markup=markup)
-    bot.send_message(message.chat.id, 'Для того, чтобы изменить параметры нажмите на кнопку "Изменить параметры"', reply_markup=markup)
+    admin(message.chat.id)
     bot.register_next_step_handler(message, posrednik)
 
 
@@ -110,34 +113,20 @@ def edit_par_4(message):
         П2 = PAR_DICT['2par']
         bot.send_message(message.chat.id, 'Параметры сменены успешно!')
         bot.send_message(message.chat.id, f'Первый параметр - {П1} \n Второй параметр - {П2}')
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
-        credit = types.KeyboardButton('Расчитать сумму')
-        edit_id = types.KeyboardButton('Изменить ID чата')
-        edit_par = types.KeyboardButton('Изменить параметры')
-        markup.add(credit, edit_id, edit_par)
-        bot.send_message(message.chat.id, 'Для того, чтобы расчитать сумму нажмите на кнопку "Расчитать сумму"', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для того, чтобы изменить ID нажмите на кнопку "Изменить ID чата"', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для того, чтобы изменить параметры нажмите на кнопку "Изменить параметры"', reply_markup=markup)
+        admin(message.chat.id)
         bot.register_next_step_handler(message, posrednik)
     
 
 @bot.message_handler(commands=['start'])
 def start_1(message):
-    if message.from_user.id != 748736705:
+    if message.from_user.id != USER_ID:
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
         credit = types.KeyboardButton('Расчитать сумму')
         markup.add(credit)
         bot.send_message(message.chat.id, 'Для того, чтобы расчитать сумму нажмите на кнопку "Расчитать сумму"', reply_markup=markup)
         bot.register_next_step_handler(message, start_2)
     else:
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
-        credit = types.KeyboardButton('Расчитать сумму')
-        edit_id = types.KeyboardButton('Изменить ID чата')
-        edit_par = types.KeyboardButton('Изменить параметры')
-        markup.add(credit, edit_id, edit_par)
-        bot.send_message(message.chat.id, 'Для того, чтобы расчитать сумму нажмите на кнопку "Расчитать сумму"', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для того, чтобы изменить ID нажмите на кнопку "Изменить ID чата"', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для того, чтобы изменить параметры нажмите на кнопку "Изменить параметры"', reply_markup=markup)
+        admin(message.chat.id)
         bot.register_next_step_handler(message, start_2)
 
 
@@ -246,7 +235,7 @@ def review_3(message):
                         res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
                         bot.send_message(
                         message.chat.id,
-                        f'Сумма товара: {A} руб. \n Срок договора: {C} мес. \n Первоначальный взнос: {B} руб. \n Ежемесячный платеж: {round(res_1)} руб. \n Сумма задолженности: {round(res_1) * (C-1) - B} руб.'
+                        f'Сумма товара: {A} руб. \n Срок договора: {C} мес. \n Первоначальный взнос: {B} руб. \n Ежемесячный платеж: {round(res_1)} руб. \n Сумма задолженности: {round(res_1) * (C-1)} руб.'
                         )
                 else:
                     K1 = 0.04
@@ -265,19 +254,32 @@ def review_3(message):
                         res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
                         bot.send_message(
                         message.chat.id,
-                        f'Сумма товара: {A} руб. \n Срок договора: {C} мес. \n Первоначальный взнос: {B} руб. \n Ежемесячный платеж: {round(res_1)} руб. \n Сумма задолженности: {round(res_1) * (C-1) - B} руб.'
+                        f'Сумма товара: {A} руб. \n Срок договора: {C} мес. \n Первоначальный взнос: {B} руб. \n Ежемесячный платеж: {round(res_1)} руб. \n Сумма задолженности: {round(res_1) * (C-1)} руб.'
                         )
                 if err != 500:
-                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
-                    credit = types.KeyboardButton('Сформировать онлайн заявку')
-                    raschet = types.KeyboardButton('Пересчитать сумму')
-                    markup.add(credit, raschet)
-                    send = bot.send_message(
-                    message.chat.id,
-                    'Если вас устраивает цена нажмите на "Сформировать онлайн заявку", если нет на "Пересчитать сумму"',
-                    reply_markup=markup
-                    )
-                    bot.register_next_step_handler(send, func)
+                    if message.from_user.id != USER_ID:
+                        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
+                        credit = types.KeyboardButton('Сформировать онлайн заявку')
+                        raschet = types.KeyboardButton('Пересчитать сумму')
+                        markup.add(credit, raschet)
+                        send = bot.send_message(
+                        message.chat.id,
+                        'Если вас устраивает цена нажмите на "Сформировать онлайн заявку", если нет на "Пересчитать сумму"',
+                        reply_markup=markup
+                        )
+                        bot.register_next_step_handler(send, func)
+                    else:
+                        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
+                        credit = types.KeyboardButton('Сформировать онлайн заявку')
+                        raschet = types.KeyboardButton('Пересчитать сумму')
+                        home = types.KeyboardButton('Вернуться домой')
+                        markup.add(credit, raschet, home)
+                        send = bot.send_message(
+                        message.chat.id,
+                        'Если вас устраивает цена нажмите на "Сформировать онлайн заявку", если нет на "Пересчитать сумму"',
+                        reply_markup=markup
+                        )
+                        bot.register_next_step_handler(send, func)
 
 
 def func(message):
@@ -285,6 +287,8 @@ def func(message):
         review_5(message=message)
     elif message.text == 'Пересчитать сумму':
         start_2(message=message)
+    elif message.text == 'Вернуться домой':
+        start_1(message=message)
     else:
         send = bot.send_message(message.chat.id, 'Пожалуйста нажмите на кнопку')
         bot.register_next_step_handler(send, func)
