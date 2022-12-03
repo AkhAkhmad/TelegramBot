@@ -2,13 +2,9 @@ import telebot
 from telebot import types
 
 
-# API_KEY = '5924672396:AAEsfX7vyFgA3uy7GrugRR5w8_rXfhW54U8'
-
 API_KEY = '5855326170:AAE5CJw2wI1kVe19nhMgB-YsKySaR5M7Qag'
 
 CHAT_ID = -1001818313548
-
-# CHAT_ID = 640348124
 
 # USER_ID = 640348124
 
@@ -30,78 +26,127 @@ RAS_DICT = {}
 
 
 @bot.message_handler(commands=['editid'])
-def edit(message):
+def edit_id(message):
     if message.from_user.id == USER_ID:
-        send = bot.send_message(message.chat.id, 'Пароль')
-        bot.register_next_step_handler(send, edit_2)
+        send = bot.send_message(message.chat.id, 'Введите пароль от учетной записи:')
+        bot.register_next_step_handler(send, edit_id_2)
     else:
         bot.send_message(message.chat.id, 'Нет такой команды. Введите /start')
 
 
-def edit_2(message):
-    if message.text == PASSWORD:
-        send = bot.send_message(message.chat.id, 'Введите новый ID:')
-        bot.register_next_step_handler(send, edit_3)
-    else:
-        bot.send_message(message.chat.id, 'Ошибка!')
-        bot.send_message(message.chat.id, 'Для повторной попытки нажмите на /editid!')
-
-
-def edit_3(message):
-    global CHAT_ID
-    CHAT_ID = message.text
-    bot.send_message(message.chat.id, 'ID сменен успешно!')
-    bot.send_message(message.chat.id, 'Для активации бота нажмите на /start')
-
-
-@bot.message_handler(commands=['editpar'])
-def edit_id(message):
-    try:
-        if message.from_user.id == USER_ID:
-            send = bot.send_message(message.chat.id, 'Пароль')
-            bot.register_next_step_handler(send, edit_id_2)
-        else:
-            bot.send_message(message.chat.id, 'Нет такой команды. Введите /start')
-    except:
-        bot.send_message(message.chat.id, 'Произошла ошибка, пожалуйста, повторите операцию. /edit')
-
-
 def edit_id_2(message):
     if message.text == PASSWORD:
-        send = bot.send_message(message.chat.id, 'Введите 1-й параметр:')
+        send = bot.send_message(message.chat.id, 'Введите новый ID:')
         bot.register_next_step_handler(send, edit_id_3)
     else:
         bot.send_message(message.chat.id, 'Ошибка!')
-        bot.send_message(message.chat.id, 'Для повторной попытки нажмите на /editpar!')
+        edit_id(message=message)
 
 
 def edit_id_3(message):
-    PAR_DICT['1par'] = message.text
-    send = bot.send_message(message.chat.id, 'Введите 2-й параметр:')
-    bot.register_next_step_handler(send, edit_id_4)
+    global CHAT_ID
+    CHAT_ID = message.text
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
+    credit = types.KeyboardButton('Расчитать сумму')
+    edit_id = types.KeyboardButton('Изменить ID чата')
+    edit_par = types.KeyboardButton('Изменить параметры')
+    markup.add(credit, edit_id, edit_par)
+    bot.send_message(message.chat.id, 'ID сменен успешно!')
+    bot.send_message(message.chat.id, 'Для того, чтобы расчитать сумму нажмите на кнопку "Расчитать сумму"', reply_markup=markup)
+    bot.send_message(message.chat.id, 'Для того, чтобы изменить ID нажмите на кнопку "Изменить ID чата"', reply_markup=markup)
+    bot.send_message(message.chat.id, 'Для того, чтобы изменить параметры нажмите на кнопку "Изменить параметры"', reply_markup=markup)
+    bot.register_next_step_handler(message, posrednik)
 
 
-def edit_id_4(message):
-    PAR_DICT['2par'] = message.text
-    global П1, П2
-    П1 = PAR_DICT['1par']
-    П2 = PAR_DICT['2par']
-    bot.send_message(message.chat.id, 'Параметры сменены успешно!')
-    bot.send_message(message.chat.id, f'{П1} \n {П2}')
-    bot.send_message(message.chat.id, 'Для активации бота нажмите на /start')
+def posrednik(message):
+    if message.text == 'Расчитать сумму':
+        start_2(message=message)
+    elif message.text == 'Изменить ID чата':
+        edit_id(message=message)
+    elif message.text == 'Изменить параметры':
+        edit_par(message=message)
 
+
+@bot.message_handler(commands=['editpar'])
+def edit_par(message):
+    if message.from_user.id == USER_ID:
+        send = bot.send_message(message.chat.id, 'Введите пароль от учетной записи:')
+        bot.register_next_step_handler(send, edit_par_2)
+    else:
+        bot.send_message(message.chat.id, 'Нет такой команды. Введите /start')
+
+
+def edit_par_2(message):
+    if message.text == PASSWORD:
+        send = bot.send_message(message.chat.id, 'Введите 1-й параметр:')
+        bot.register_next_step_handler(send, edit_par_3)
+    else:
+        bot.send_message(message.chat.id, 'Ошибка!')
+        edit_par(message=message)
+
+
+def edit_par_3(message):
+    try:
+        int(message.text) // int(message.text) == 1
+    except:
+        send = bot.send_message(message.chat.id, 'Без символов')
+        bot.register_next_step_handler(send, edit_par_3)
+    else:
+        PAR_DICT['1par'] = int(message.text)
+        send = bot.send_message(message.chat.id, 'Введите 2-й параметр:')
+        bot.register_next_step_handler(send, edit_par_4)
+
+
+def edit_par_4(message):
+    try:
+        int(message.text) // int(message.text) == 1
+    except:
+        send = bot.send_message(message.chat.id, 'Без символов')
+        bot.register_next_step_handler(send, edit_par_4)
+    else:
+        PAR_DICT['2par'] = int(message.text)
+        global П1, П2
+        П1 = PAR_DICT['1par']
+        П2 = PAR_DICT['2par']
+        bot.send_message(message.chat.id, 'Параметры сменены успешно!')
+        bot.send_message(message.chat.id, f'Первый параметр - {П1} \n Второй параметр - {П2}')
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
+        credit = types.KeyboardButton('Расчитать сумму')
+        edit_id = types.KeyboardButton('Изменить ID чата')
+        edit_par = types.KeyboardButton('Изменить параметры')
+        markup.add(credit, edit_id, edit_par)
+        bot.send_message(message.chat.id, 'Для того, чтобы расчитать сумму нажмите на кнопку "Расчитать сумму"', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для того, чтобы изменить ID нажмите на кнопку "Изменить ID чата"', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для того, чтобы изменить параметры нажмите на кнопку "Изменить параметры"', reply_markup=markup)
+        bot.register_next_step_handler(message, posrednik)
+    
 
 @bot.message_handler(commands=['start'])
 def start_1(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
-    credit = types.KeyboardButton('Расчитать сумму')
-    markup.add(credit)
-    bot.send_message(message.chat.id, 'Для того, чтобы расчитать сумму нажмите на кнопку "Расчитать сумму"', reply_markup=markup)
-    bot.register_next_step_handler(message, start_2)
+    if message.from_user.id != 748736705:
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
+        credit = types.KeyboardButton('Расчитать сумму')
+        markup.add(credit)
+        bot.send_message(message.chat.id, 'Для того, чтобы расчитать сумму нажмите на кнопку "Расчитать сумму"', reply_markup=markup)
+        bot.register_next_step_handler(message, start_2)
+    else:
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
+        credit = types.KeyboardButton('Расчитать сумму')
+        edit_id = types.KeyboardButton('Изменить ID чата')
+        edit_par = types.KeyboardButton('Изменить параметры')
+        markup.add(credit, edit_id, edit_par)
+        bot.send_message(message.chat.id, 'Для того, чтобы расчитать сумму нажмите на кнопку "Расчитать сумму"', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для того, чтобы изменить ID нажмите на кнопку "Изменить ID чата"', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для того, чтобы изменить параметры нажмите на кнопку "Изменить параметры"', reply_markup=markup)
+        bot.register_next_step_handler(message, start_2)
 
 
 def start_2(message):
-    if message.text != 'Расчитать сумму' and message.text != 'Пересчитать сумму' and message.text != 'Начать расчет заново':
+    if message.text == 'Изменить ID чата':
+        edit_id(message=message)
+    elif message.text == 'Изменить параметры':
+        edit_par(message=message)
+    elif message.text != 'Расчитать сумму' and message.text != 'Пересчитать сумму' and message.text != 'Начать расчет заново':
         start_1(message=bot.reply_to(message, 'Пожалуйста, нажмите на кнопку для расчета'))
     else:
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
@@ -201,7 +246,7 @@ def review_3(message):
                         res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
                         bot.send_message(
                         message.chat.id,
-                        f'Сумма товара: {A} руб. \n Срок договора: {C} мес. \n Первоначальный взнос: {B} руб. \n Ежемесячный платеж: {round(res_1)} руб. \n Сумма задолженности: {round(res_1) * (C-1) - B} руб. '
+                        f'Сумма товара: {A} руб. \n Срок договора: {C} мес. \n Первоначальный взнос: {B} руб. \n Ежемесячный платеж: {round(res_1)} руб. \n Сумма задолженности: {round(res_1) * (C-1) - B} руб.'
                         )
                 else:
                     K1 = 0.04
@@ -220,7 +265,7 @@ def review_3(message):
                         res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
                         bot.send_message(
                         message.chat.id,
-                        f'Сумма товара: {A} руб. \n Срок договора: {C} мес. \n Первоначальный взнос: {B} руб. \n Ежемесячный платеж: {round(res_1)} руб. \n Сумма задолженности: {round(res_1) * (C-1) - B} руб. '
+                        f'Сумма товара: {A} руб. \n Срок договора: {C} мес. \n Первоначальный взнос: {B} руб. \n Ежемесячный платеж: {round(res_1)} руб. \n Сумма задолженности: {round(res_1) * (C-1) - B} руб.'
                         )
                 if err != 500:
                     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
@@ -298,16 +343,7 @@ def review_8(message):
         send = bot.send_message(message.chat.id, 'Ваша заявка принята, в ближайшее время наш менеджер свяжется с вами.', reply_markup=markup)
         bot.register_next_step_handler(send, func)
         message_to_save = f'{name} \n {data} \n {tel}'
-        try:
-            bot.send_message(CHAT_ID, message_to_save)
-        except:
-            bot.send_message(message.chat.id, 'Сервер перезагрузился, пожалуйста, укажите ID чата через /editid')
-
-
-@bot.message_handler(content_types=['text'])
-def not_found(message):
-    if message.text != '/editid' and message.text != '/editpar' and message.text != '/start' and message.text != 'Сформировать онлайн заявку' and message.text != 'Пересчитать сумму' and message.text != 'Расчитать сумму':
-        bot.send_message(message.chat.id, 'Нет такой команды. Введите /start')
+        bot.send_message(CHAT_ID, message_to_save)
 
 
 bot.polling(non_stop=True)
