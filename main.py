@@ -55,6 +55,12 @@ def edit_id(message):
 def edit_id_2(message):
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Расчитать сумму':
+        posrednik(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         if message.text == PASSWORD:
             send = bot.send_message(message.chat.id, 'Введите новый ID:')
@@ -67,6 +73,12 @@ def edit_id_2(message):
 def edit_id_3(message):
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Расчитать сумму':
+        posrednik(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         global CHAT_ID
         CHAT_ID = message.text
@@ -99,6 +111,12 @@ def edit_par(message):
 def edit_par_2(message):
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Расчитать сумму':
+        posrednik(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         if message.text == PASSWORD:
             send = bot.send_message(message.chat.id, 'Введите 1-й параметр:')
@@ -111,6 +129,12 @@ def edit_par_2(message):
 def edit_par_3(message):
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Расчитать сумму':
+        posrednik(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         try:
             int(message.text) // int(message.text) == 1
@@ -126,6 +150,12 @@ def edit_par_3(message):
 def edit_par_4(message):
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Расчитать сумму':
+        posrednik(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         try:
             int(message.text) // int(message.text) == 1
