@@ -292,8 +292,12 @@ def review_3(message):
                             K1 = 0.04
                             K2 = 0.105
                         try:
-                            (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
-                            round((A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)) * (C-1) - B
+                            res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
+                            res_2 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1
+                            (RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]
+                            (RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]
+                            RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]
+                            RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]
                         except:
                             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
                             raschet = types.KeyboardButton('Пересчитать сумму')
@@ -311,8 +315,12 @@ def review_3(message):
                         K1 = 0.04
                         K2 = 0.105
                         try:
-                            (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
-                            round((A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)) * (C-1) - B
+                            res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
+                            res_2 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1
+                            (RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]
+                            (RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]
+                            RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]
+                            RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]
                         except:
                             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
                             raschet = types.KeyboardButton('Пересчитать сумму')
