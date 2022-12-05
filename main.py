@@ -1,22 +1,15 @@
 import telebot
 from telebot import types
+import sqlite3
 
 
 API_KEY = '5855326170:AAE5CJw2wI1kVe19nhMgB-YsKySaR5M7Qag'
-
-CHAT_ID = -1001818313548
 
 # USER_ID = 640348124
 
 USER_ID = 748736705
 
 PASSWORD = '1234'
-
-П1 = 100
-
-П2 = 20
-
-PAR_DICT = {}
 
 K1 = 0
 
@@ -80,8 +73,11 @@ def edit_id_3(message):
     elif message.text == 'Изменить параметры':
         posrednik(message=message)
     else:
-        global CHAT_ID
-        CHAT_ID = message.text
+        conn = sqlite3.connect('TelegramBot.db')
+        cursor = conn.cursor()
+        cursor.execute(f'UPDATE admin SET chat_id={message.text} WHERE id=1')
+        conn.commit()
+        cursor.close()
         bot.send_message(message.chat.id, 'ID сменен успешно!')
         admin(message.chat.id)
         bot.register_next_step_handler(message, posrednik)
@@ -142,7 +138,10 @@ def edit_par_3(message):
             send = bot.send_message(message.chat.id, 'Без символов')
             bot.register_next_step_handler(send, edit_par_3)
         else:
-            PAR_DICT['1par'] = int(message.text)
+            conn = sqlite3.connect('TelegramBot.db')
+            cursor = conn.cursor()
+            cursor.execute(f"UPDATE admin SET par_1={int(message.text)} WHERE id=1")
+            conn.commit()
             send = bot.send_message(message.chat.id, 'Введите 2-й параметр:')
             bot.register_next_step_handler(send, edit_par_4)
 
@@ -163,12 +162,12 @@ def edit_par_4(message):
             send = bot.send_message(message.chat.id, 'Без символов')
             bot.register_next_step_handler(send, edit_par_4)
         else:
-            PAR_DICT['2par'] = int(message.text)
-            global П1, П2
-            П1 = PAR_DICT['1par']
-            П2 = PAR_DICT['2par']
+            conn = sqlite3.connect('TelegramBot.db')
+            cursor = conn.cursor()
+            cursor.execute(f"UPDATE admin SET par_2={int(message.text)} WHERE id=1")
+            conn.commit()
+            cursor.close()
             bot.send_message(message.chat.id, 'Параметры сменены успешно!')
-            bot.send_message(message.chat.id, f'Первый параметр - {П1} \n Второй параметр - {П2}')
             admin(message.chat.id)
             bot.register_next_step_handler(message, posrednik)
 
@@ -245,6 +244,8 @@ def review_2(message):
 
 
 def review_3(message):
+    conn = sqlite3.connect('TelegramBot.db')
+    cursor = conn.cursor()
     if message.text == '/start':
         start_1(message=message)
     else:
@@ -292,8 +293,8 @@ def review_3(message):
                             K1 = 0.04
                             K2 = 0.105
                         try:
-                            res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
-                            res_2 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1
+                            res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / int(''.join(str(e) for e in [par_1[0] for par_1 in cursor.execute('SELECT par_1 FROM admin WHERE id=1')])) / (12 / C) ** (int(''.join(str(e) for e in [par_2[0] for par_2 in cursor.execute('SELECT par_2 FROM admin WHERE id=1')])) / 100)
+                            res_2 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / int(''.join(str(e) for e in [par_1[0] for par_1 in cursor.execute('SELECT par_1 FROM admin WHERE id=1')]))
                             (RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]
                             (RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]
                             RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]
@@ -306,7 +307,7 @@ def review_3(message):
                             bot.register_next_step_handler(send, func)
                             err = 500
                         else:
-                            res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
+                            res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / int(''.join(str(e) for e in [par_1[0] for par_1 in cursor.execute('SELECT par_1 FROM admin WHERE id=1')])) / (12 / C) ** (int(''.join(str(e) for e in [par_2[0] for par_2 in cursor.execute('SELECT par_2 FROM admin WHERE id=1')])) / 100)
                             KAL = 1
                             bot.send_message(message.chat.id,
                             f'Сумма товара: {RAS_DICT["sum"]} руб. \n Срок договора: {RAS_DICT["srok"]} мес. \n Первоначальный взнос: {RAS_DICT["per_vznos"]} руб. \n Ежемесячный платеж: {(RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]} руб. \n Сумма задолженности: {RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]} руб.'
@@ -315,8 +316,8 @@ def review_3(message):
                         K1 = 0.04
                         K2 = 0.105
                         try:
-                            res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1 / (12 / C) ** (П2 / 100)
-                            res_2 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1
+                            res_1 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / int(''.join(str(e) for e in [par_1[0] for par_1 in cursor.execute('SELECT par_1 FROM admin WHERE id=1')])) / (12 / C) ** (int(''.join(str(e) for e in [par_2[0] for par_2 in cursor.execute('SELECT par_2 FROM admin WHERE id=1')])) / 100)
+                            res_2 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / int(''.join(str(e) for e in [par_1[0] for par_1 in cursor.execute('SELECT par_1 FROM admin WHERE id=1')]))
                             (RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]
                             (RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]
                             RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]
@@ -329,7 +330,7 @@ def review_3(message):
                             bot.register_next_step_handler(send, func)
                             err = 500
                         else:
-                            res_2 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / П1
+                            res_2 = (A - B) *  C * 18 / (C * 0.01) ** 0.5 / (A - B)**K1 * K2 / int(''.join(str(e) for e in [par_1[0] for par_1 in cursor.execute('SELECT par_1 FROM admin WHERE id=1')]))
                             KAL = 2
                             bot.send_message(message.chat.id,
                             f'Сумма товара: {RAS_DICT["sum"]} руб. \n Срок договора: {RAS_DICT["srok"]} мес. \n Первоначальный взнос: {RAS_DICT["per_vznos"]} руб. \n Ежемесячный платеж: {(RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]} руб. \n Сумма задолженности: {RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]} руб.'
@@ -426,12 +427,15 @@ def review_7(message):
 
 
 def review_8(message):
+    conn = sqlite3.connect('TelegramBot.db')
+    cursor = conn.cursor()
     if message.text == '/start':
         start_1(message=message)
     else:
         if message.text == 'Заполнить анкету заново':
             review_5(message=message)
         else:
+            global KAL
             if message.from_user.id != USER_ID:
                 USER_DICT['tel'] = message.text
                 name = USER_DICT['name']
@@ -443,8 +447,18 @@ def review_8(message):
                 send = bot.send_message(message.chat.id, 'Ваша заявка принята, в ближайшее время наш менеджер свяжется с вами.', reply_markup=markup)
                 bot.register_next_step_handler(send, func)
                 message_to_save = f'{name} \n {data} \n {tel}'
+                if KAL == 1:
+                    res_1 = (RAS_DICT['sum'] - RAS_DICT['per_vznos']) *  RAS_DICT['srok'] * 18 / (RAS_DICT['srok'] * 0.01) ** 0.5 / (RAS_DICT['sum'] - RAS_DICT['per_vznos'])**K1 * K2 / int(''.join(str(e) for e in [par_1[0] for par_1 in cursor.execute('SELECT par_1 FROM admin WHERE id=1')])) / (12 / RAS_DICT['srok']) ** (int(''.join(str(e) for e in [par_2[0] for par_2 in cursor.execute('SELECT par_2 FROM admin WHERE id=1')])) / 100)
+                    bot.send_message(''.join(str(e) for e in [chat_id[0] for chat_id in cursor.execute('SELECT chat_id FROM admin WHERE id=1')]),
+                    f'Сумма товара: {RAS_DICT["sum"]} руб. \n Срок договора: {RAS_DICT["srok"]} мес. \n Первоначальный взнос: {RAS_DICT["per_vznos"]} руб. \n Ежемесячный платеж: {(RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]} руб. \n Сумма задолженности: {RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]} руб.'
+                    )
+                elif KAL == 2:
+                    res_2 = (RAS_DICT['sum'] - RAS_DICT['per_vznos']) *  RAS_DICT['srok'] * 18 / (RAS_DICT['srok'] * 0.01) ** 0.5 / (RAS_DICT['sum'] - RAS_DICT['per_vznos'])**K1 * K2 / int(''.join(str(e) for e in [par_1[0] for par_1 in cursor.execute('SELECT par_1 FROM admin WHERE id=1')]))
+                    bot.send_message(''.join(str(e) for e in [chat_id[0] for chat_id in cursor.execute('SELECT chat_id FROM admin WHERE id=1')]),
+                    f'Сумма товара: {RAS_DICT["sum"]} руб. \n Срок договора: {RAS_DICT["srok"]} мес. \n Первоначальный взнос: {RAS_DICT["per_vznos"]} руб. \n Ежемесячный платеж: {(RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]} руб. \n Сумма задолженности: {RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]} руб.'
+                    )
                 try:
-                    bot.send_message(CHAT_ID, message_to_save)
+                    bot.send_message(''.join(str(e) for e in [chat_id[0] for chat_id in cursor.execute('SELECT chat_id FROM admin WHERE id=1')]), message_to_save)
                 except:
                     pass
             else:
@@ -459,18 +473,20 @@ def review_8(message):
                 send = bot.send_message(message.chat.id, 'Ваша заявка принята, в ближайшее время наш менеджер свяжется с вами.', reply_markup=markup)
                 bot.register_next_step_handler(send, func)
                 message_to_save = f'{name} \n {data} \n {tel}'
-                global kal
                 if KAL == 1:
-                    res_1 = (RAS_DICT['sum'] - RAS_DICT['per_vznos']) *  RAS_DICT['srok'] * 18 / (RAS_DICT['srok'] * 0.01) ** 0.5 / (RAS_DICT['sum'] - RAS_DICT['per_vznos'])**K1 * K2 / П1 / (12 / RAS_DICT['srok']) ** (П2 / 100)
-                    bot.send_message(CHAT_ID,
+                    res_1 = (RAS_DICT['sum'] - RAS_DICT['per_vznos']) *  RAS_DICT['srok'] * 18 / (RAS_DICT['srok'] * 0.01) ** 0.5 / (RAS_DICT['sum'] - RAS_DICT['per_vznos'])**K1 * K2 / int(''.join(str(e) for e in [par_1[0] for par_1 in cursor.execute('SELECT par_1 FROM admin WHERE id=1')])) / (12 / RAS_DICT['srok']) ** (int(''.join(str(e) for e in [par_2[0] for par_2 in cursor.execute('SELECT par_2 FROM admin WHERE id=1')])) / 100)
+                    bot.send_message(''.join(str(e) for e in [chat_id[0] for chat_id in cursor.execute('SELECT chat_id FROM admin WHERE id=1')]),
                     f'Сумма товара: {RAS_DICT["sum"]} руб. \n Срок договора: {RAS_DICT["srok"]} мес. \n Первоначальный взнос: {RAS_DICT["per_vznos"]} руб. \n Ежемесячный платеж: {(RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]} руб. \n Сумма задолженности: {RAS_DICT["sum"] + round(res_1) - RAS_DICT["per_vznos"]} руб.'
                     )
                 elif KAL == 2:
-                    res_2 = (RAS_DICT['sum'] - RAS_DICT['per_vznos']) *  RAS_DICT['srok'] * 18 / (RAS_DICT['srok'] * 0.01) ** 0.5 / (RAS_DICT['sum'] - RAS_DICT['per_vznos'])**K1 * K2 / П1
-                    bot.send_message(CHAT_ID,
+                    res_2 = (RAS_DICT['sum'] - RAS_DICT['per_vznos']) *  RAS_DICT['srok'] * 18 / (RAS_DICT['srok'] * 0.01) ** 0.5 / (RAS_DICT['sum'] - RAS_DICT['per_vznos'])**K1 * K2 / int(''.join(str(e) for e in [par_1[0] for par_1 in cursor.execute('SELECT par_1 FROM admin WHERE id=1')]))
+                    bot.send_message(''.join(str(e) for e in [chat_id[0] for chat_id in cursor.execute('SELECT chat_id FROM admin WHERE id=1')]),
                     f'Сумма товара: {RAS_DICT["sum"]} руб. \n Срок договора: {RAS_DICT["srok"]} мес. \n Первоначальный взнос: {RAS_DICT["per_vznos"]} руб. \n Ежемесячный платеж: {(RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]) // RAS_DICT["srok"]} руб. \n Сумма задолженности: {RAS_DICT["sum"] + round(res_2) - RAS_DICT["per_vznos"]} руб.'
                     )
-                bot.send_message(CHAT_ID, message_to_save)
+                try:
+                    bot.send_message(''.join(str(e) for e in [chat_id[0] for chat_id in cursor.execute('SELECT chat_id FROM admin WHERE id=1')]), message_to_save)
+                except:
+                    pass
 
 
 bot.polling(non_stop=True)
