@@ -5,11 +5,9 @@ import sqlite3
 
 API_KEY = '5855326170:AAE5CJw2wI1kVe19nhMgB-YsKySaR5M7Qag'
 
-# USER_ID = 640348124
+USER_ID = ''
 
-USER_ID = 748736705
-
-PASSWORD = '1234'
+PASSWORD = ''
 
 K1 = 0
 
@@ -27,11 +25,11 @@ RAS_DICT = {}
 
 def admin(par):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
-    raschet = types.KeyboardButton('Расчитать сумму')
+    raschet = types.KeyboardButton('Рассчитать сумму')
     edit_id = types.KeyboardButton('Изменить ID чата')
     edit_par = types.KeyboardButton('Изменить параметры')
     markup.add(raschet, edit_id, edit_par)
-    bot.send_message(par, 'Для того, чтобы расчитать сумму нажмите на кнопку "Расчитать сумму"', reply_markup=markup)
+    bot.send_message(par, 'Для того, чтобы Рассчитать сумму нажмите на кнопку "Рассчитать сумму"', reply_markup=markup)
     bot.send_message(par, 'Для того, чтобы изменить ID нажмите на кнопку "Изменить ID чата"')
     bot.send_message(par, 'Для того, чтобы изменить параметры нажмите на кнопку "Изменить параметры"')
 
@@ -48,7 +46,7 @@ def edit_id(message):
 def edit_id_2(message):
     if message.text == '/start':
         start_1(message=message)
-    elif message.text == 'Расчитать сумму':
+    elif message.text == 'Рассчитать сумму':
         posrednik(message=message)
     elif message.text == 'Изменить ID чата':
         posrednik(message=message)
@@ -66,7 +64,7 @@ def edit_id_2(message):
 def edit_id_3(message):
     if message.text == '/start':
         start_1(message=message)
-    elif message.text == 'Расчитать сумму':
+    elif message.text == 'Рассчитать сумму':
         posrednik(message=message)
     elif message.text == 'Изменить ID чата':
         posrednik(message=message)
@@ -87,7 +85,7 @@ def posrednik(message):
     if message.text == '/start':
         start_1(message=message)
     else:
-        if message.text == 'Расчитать сумму':
+        if message.text == 'Рассчитать сумму':
             start_2(message=message)
         elif message.text == 'Изменить ID чата':
             edit_id(message=message)
@@ -107,7 +105,7 @@ def edit_par(message):
 def edit_par_2(message):
     if message.text == '/start':
         start_1(message=message)
-    elif message.text == 'Расчитать сумму':
+    elif message.text == 'Рассчитать сумму':
         posrednik(message=message)
     elif message.text == 'Изменить ID чата':
         posrednik(message=message)
@@ -125,7 +123,7 @@ def edit_par_2(message):
 def edit_par_3(message):
     if message.text == '/start':
         start_1(message=message)
-    elif message.text == 'Расчитать сумму':
+    elif message.text == 'Рассчитать сумму':
         posrednik(message=message)
     elif message.text == 'Изменить ID чата':
         posrednik(message=message)
@@ -142,6 +140,7 @@ def edit_par_3(message):
             cursor = conn.cursor()
             cursor.execute(f"UPDATE admin SET par_1={int(message.text)} WHERE id=1")
             conn.commit()
+            cursor.close()
             send = bot.send_message(message.chat.id, 'Введите 2-й параметр:')
             bot.register_next_step_handler(send, edit_par_4)
 
@@ -149,7 +148,7 @@ def edit_par_3(message):
 def edit_par_4(message):
     if message.text == '/start':
         start_1(message=message)
-    elif message.text == 'Расчитать сумму':
+    elif message.text == 'Рассчитать сумму':
         posrednik(message=message)
     elif message.text == 'Изменить ID чата':
         posrednik(message=message)
@@ -176,9 +175,9 @@ def edit_par_4(message):
 def start_1(message):
     if message.from_user.id != USER_ID:
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
-        credit = types.KeyboardButton('Расчитать сумму')
+        credit = types.KeyboardButton('Рассчитать сумму')
         markup.add(credit)
-        bot.send_message(message.chat.id, 'Для того, чтобы расчитать сумму нажмите на кнопку "Расчитать сумму"', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для того, чтобы Рассчитать сумму нажмите на кнопку "Рассчитать сумму"', reply_markup=markup)
         bot.register_next_step_handler(message, start_2)
     else:
         admin(message.chat.id)
@@ -193,7 +192,7 @@ def start_2(message):
             edit_id(message=message)
         elif message.text == 'Изменить параметры':
             edit_par(message=message)
-        elif message.text != 'Расчитать сумму' and message.text != 'Пересчитать сумму' and message.text != 'Начать расчет заново':
+        elif message.text != 'Рассчитать сумму' and message.text != 'Пересчитать сумму' and message.text != 'Начать расчет заново':
             start_1(message=bot.reply_to(message, 'Пожалуйста, нажмите на кнопку для расчета'))
         else:
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
@@ -206,6 +205,12 @@ def start_2(message):
 def review_1(message):
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Рассчитать сумму':
+        posrednik(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         if message.text == 'Назад':
             start_1(message=message)
@@ -228,6 +233,12 @@ def review_1(message):
 def review_2(message):
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Рассчитать сумму':
+        posrednik(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         if message.text == 'Начать расчет заново':
             start_2(message=message)
@@ -248,6 +259,12 @@ def review_3(message):
     cursor = conn.cursor()
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Рассчитать сумму':
+        posrednik(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         err = 0
         if message.text == 'Начать расчет заново':
@@ -364,10 +381,14 @@ def review_3(message):
 def func(message):
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         if message.text == 'Сформировать онлайн заявку' or message.text == 'Заполнить анкету заново':
             review_5(message=message)
-        elif message.text == 'Пересчитать сумму' or message.text == 'Расчитать сумму':
+        elif message.text == 'Пересчитать сумму' or message.text == 'Рассчитать сумму':
             start_2(message=message)
         elif message.text == 'Вернуться домой':
             start_1(message=message)
@@ -379,6 +400,12 @@ def func(message):
 def review_4(message):
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Рассчитать сумму':
+        posrednik(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
         credit = types.KeyboardButton('Сформировать онлайн заявку', one_time_keyboard=True)
@@ -390,6 +417,12 @@ def review_4(message):
 def review_5(message):
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Рассчитать сумму':
+        posrednik(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         if message.text != 'Сформировать онлайн заявку' and message.text != 'Заполнить анкету заново':
             review_4(message=bot.reply_to(message, 'Пожалуйста, нажмите на кнопку для получения рассрочки'))
@@ -401,6 +434,12 @@ def review_5(message):
 def review_6(message):
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Рассчитать сумму':
+        posrednik(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         if any(map(str.isdigit, message.text)):
             send = bot.reply_to(message, 'Без цифр')
@@ -417,6 +456,12 @@ def review_6(message):
 def review_7(message):
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Рассчитать сумму':
+        posrednik(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         if message.text == 'Заполнить анкету заново':
             review_5(message=message)
@@ -431,6 +476,12 @@ def review_8(message):
     cursor = conn.cursor()
     if message.text == '/start':
         start_1(message=message)
+    elif message.text == 'Рассчитать сумму':
+        posrednik(message=message)
+    elif message.text == 'Изменить ID чата':
+        posrednik(message=message)
+    elif message.text == 'Изменить параметры':
+        posrednik(message=message)
     else:
         if message.text == 'Заполнить анкету заново':
             review_5(message=message)
@@ -442,7 +493,7 @@ def review_8(message):
                 data = USER_DICT['data']
                 tel = USER_DICT['tel']
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
-                raschet = types.KeyboardButton('Расчитать сумму')
+                raschet = types.KeyboardButton('Рассчитать сумму')
                 markup.add(raschet)
                 send = bot.send_message(message.chat.id, 'Ваша заявка принята, в ближайшее время наш менеджер свяжется с вами.', reply_markup=markup)
                 bot.register_next_step_handler(send, func)
@@ -467,7 +518,7 @@ def review_8(message):
                 data = USER_DICT['data']
                 tel = USER_DICT['tel']
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
-                raschet = types.KeyboardButton('Расчитать сумму')
+                raschet = types.KeyboardButton('Рассчитать сумму')
                 home = types.KeyboardButton('Вернуться домой')
                 markup.add(raschet, home)
                 send = bot.send_message(message.chat.id, 'Ваша заявка принята, в ближайшее время наш менеджер свяжется с вами.', reply_markup=markup)
@@ -487,6 +538,11 @@ def review_8(message):
                     bot.send_message(''.join(str(e) for e in [chat_id[0] for chat_id in cursor.execute('SELECT chat_id FROM admin WHERE id=1')]), message_to_save)
                 except:
                     pass
+
+
+@bot.message_handler(content_types=['text'])
+def text(message):
+    func(message=message)
 
 
 bot.polling(non_stop=True)
